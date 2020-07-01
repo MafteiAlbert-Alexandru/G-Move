@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from os import name, path
+from os import path
 from interpreter import Interpreter
-import core
-_PLATFORM_ = name
-
+from gcode import GCodeFile
 
 print(" G - Code Repositioner \n")
 
@@ -27,26 +25,38 @@ def ask_for_other_files():
 
         return (result, "Some of the files {[0]} do not exist", False)
 
-master_file = Interpreter.repeat_until_result(ask_for_master_file, lambda x: path.isfile(x[0]))
-other_files = Interpreter.repeat_until_result(ask_for_other_files, lambda x: True if x[2] else all(map(path.isfile,x[0])))
+master_file = GCodeFile(Interpreter.repeat_until_result(ask_for_master_file, lambda x: path.isfile(x[0])))
+other_files = map(GCodeFile,  Interpreter.repeat_until_result(ask_for_other_files, lambda x: True if x[2] else all(map(path.isfile,x[0]))))
+
 try:
     other_files.remove(master_file)
 except:
     pass
 
-implemented = {"c": core.center}
 while(True):
     print("Now, what do you want to do?")
     print("c - Brings(Centers) piece closer")
-    print("fp - Flips in place(Not Implemented)")
-    print("fh - Flips on horizontal axis(Not Implemented)")
-    print("fv - Flips on verical axis(Not Implemented) \n>", end='')
-
-    if input() == "c":
-        offset = core.center(master_file, master_file+'.out')
+    print("fph - Flips in place horizontally")
+    print("fpv - Flips in place vertically")
+    print("q - Quit")
+    command = input()
+    if command == "c":
+        offset = master_file.center()
 
         for i in other_files:
-            core.center(i, i+'.out', offset)
+            i.center(offset)
 
-    else:
-        print("no")
+    elif command == "fph":
+        bounding_box = master_file.flip_horizontally()
+
+        for i in other_files:
+            i.flip_horizontally(bounding_box)
+    
+    elif command == "fpv":
+        bounding_box = master_file.flip_vertically()
+
+        for i in other_files:
+            i.flip_vertically(bounding_box)
+
+    elif command == "q":
+        quit(0)
