@@ -69,15 +69,15 @@ class GCodeFile:
             del minimum_distance
             del minimum_point
                 
-            with open(self.name + str(self.version), "r") as input_file:
-                with open(self.name + str(self.version+1), "w+") as output_file:
-                    for line in input_file.readlines():
-                        current_command = Command(line)
-
-                        if current_command.type >= CommandType.HORIZONTAL_COMMAND:
-                            current_command.values["X"] += offset[0]
-                            current_command.values["Y"] += offset[1]
-                        output_file.write(str(current_command))
+        with open(self.name + str(self.version), "r") as input_file:
+            with open(self.name + str(self.version+1), "w+") as output_file:
+                for line in input_file.readlines():
+                    current_command = Command(line)
+                    
+                    if current_command.type >= CommandType.HORIZONTAL_COMMAND:
+                        current_command.values["X"] += offset[0]
+                        current_command.values["Y"] += offset[1]
+                    output_file.write(str(current_command))
         self.version += 1
         return offset
 
