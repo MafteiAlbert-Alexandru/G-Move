@@ -26,7 +26,7 @@ def ask_for_other_files():
         return (result, "Some of the files {[0]} do not exist", False)
 
 master_file = GCodeFile(Interpreter.repeat_until_result(ask_for_master_file, lambda x: path.isfile(x[0])))
-other_files = map(GCodeFile,  Interpreter.repeat_until_result(ask_for_other_files, lambda x: True if x[2] else all(map(path.isfile,x[0]))))
+other_files = [GCodeFile(x) for x in  Interpreter.repeat_until_result(ask_for_other_files, lambda x: True if x[2] else all(map(path.isfile,x[0])))]
 
 try:
     other_files.remove(master_file)
